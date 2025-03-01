@@ -126,6 +126,48 @@ public extension SimpleKeychainObjC {
       return nil
     }
   }
+  
+  // MARK: - Async
+  
+  /// Asynchronously retrieves a `String` value from the Keychain.
+  ///
+  /// - Parameter key: Key of the Keychain item to retrieve.
+  /// - Returns: The `String` value.
+  /// - Parameter completion: completion called on the main queue
+  @objc func string(forKey key: String, completion: @escaping (NSString?, NSError?) -> Void) {
+    Task {
+      do {
+        let result = try await simpleKeychain.string(forKey: key)
+        DispatchQueue.main.async {
+          completion(result as NSString, nil)
+        }
+      } catch let error as NSError {
+        DispatchQueue.main.async {
+          completion(nil, error)
+        }
+      }
+    }
+  }
+  
+  /// Asynchronously retrieves a `Data` value from the Keychain.
+  ///
+  /// - Parameter key: Key of the Keychain item to retrieve.
+  /// - Returns: The `Data` value.
+  /// - Parameter completion: completion called on the main queue
+  @objc func data(forKey key: String, completion: @escaping (NSData?, NSError?) -> Void) {
+    Task {
+      do {
+        let result = try await simpleKeychain.data(forKey: key)
+        DispatchQueue.main.async {
+          completion(result as NSData, nil)
+        }
+      } catch let error as NSError {
+        DispatchQueue.main.async {
+          completion(nil, error)
+        }
+      }
+    }
+  }
 }
 
 // MARK: - Store items
@@ -176,6 +218,48 @@ public extension SimpleKeychainObjC {
       return false
     }
   }
+  
+  // MARK: - Async
+  
+  /// Asynchronously saves a `String` value to the Keychain.
+  ///
+  /// - Parameter string: Value to save in the Keychain.
+  /// - Parameter key: Key for the Keychain item.
+  /// - Parameter completion: completion called on the main queue
+  @objc func setString(_ string: NSString, forKey key: String, completion: @escaping (NSError?) -> Void) {
+    Task {
+      do {
+        try await simpleKeychain.set(string as String, forKey: key)
+        DispatchQueue.main.async {
+          completion(nil)
+        }
+      } catch let error as NSError {
+        DispatchQueue.main.async {
+          completion(error)
+        }
+      }
+    }
+  }
+  
+  /// Asynchronously saves a `Data` value to the Keychain.
+  ///
+  /// - Parameter data: Value to save in the Keychain.
+  /// - Parameter key: Key for the Keychain item.
+  /// - Parameter completion: completion called on the main queue
+  @objc func setData(_ data: NSData, forKey key: String, completion: @escaping (NSError?) -> Void) {
+    Task {
+      do {
+        try await simpleKeychain.set(data as Data, forKey: key)
+        DispatchQueue.main.async {
+          completion(nil)
+        }
+      } catch let error as NSError {
+        DispatchQueue.main.async {
+          completion(error)
+        }
+      }
+    }
+  }
 }
 
 // MARK: - Delete items
@@ -217,11 +301,53 @@ public extension SimpleKeychainObjC {
     do {
       try simpleKeychain.deleteAll()
       return true
-    } catch let err {
+    }
+    catch let err {
       if let error = error {
         error.pointee = err as NSError
       }
       return false
+    }
+  }
+  
+  // MARK: Async
+  
+  /// Asynchronously deletes an item from the Keychain.
+  ///
+  /// - Parameter key: Key of the Keychain item to delete.
+  /// - Parameter completion: completion called on the main queue
+  @objc func deleteItem(forKey key: String, completion: @escaping (NSError?) -> Void) {
+    Task {
+      do {
+        try await simpleKeychain.deleteItem(forKey: key)
+        
+        DispatchQueue.main.async {
+          completion(nil)
+        }
+      } catch let error as NSError {
+        DispatchQueue.main.async {
+          completion(error)
+        }
+      }
+    }
+  }
+  
+  /// Asynchronously deletes all items from the Keychain for the service and access group.
+  ///
+  /// - Parameter completion: completion called on the main queue
+  @objc func deleteAll(completion: @escaping (NSError?) -> Void) {
+    Task {
+      do {
+        try await simpleKeychain.deleteAll()
+        
+        DispatchQueue.main.async {
+          completion(nil)
+        }
+      } catch let error as NSError {
+        DispatchQueue.main.async {
+          completion(error)
+        }
+      }
     }
   }
 }
@@ -267,6 +393,48 @@ public extension SimpleKeychainObjC {
         error.pointee = err as NSError
       }
       return nil
+    }
+  }
+  
+  // MARK: Async
+  
+  /// Asynchronously checks if an item is stored in the Keychain.
+  /// 
+  /// - Parameter key: Key of the Keychain item to check.
+  /// - Parameter completion: completion called on the main queue
+  @objc func hasItem(forKey key: String, completion: @escaping (Bool, NSError?) -> Void) {
+    Task {
+      do {
+        let exists = try await simpleKeychain.hasItem(forKey: key)
+        
+        DispatchQueue.main.async {
+          completion(exists, nil)
+        }
+      } catch let error as NSError {
+        DispatchQueue.main.async {
+          completion(false, error)
+        }
+      }
+    }
+  }
+  
+  /// Asynchronously retrieves the keys of all items stored in the Keychain.
+  ///
+  /// - Parameter completion: completion called on the main queue
+  /// - Returns: A `String` array containing the keys.
+  @objc func keys(completion: @escaping ([String]?, NSError?) -> Void) {
+    Task {
+      do {
+        let keys = try await simpleKeychain.keys()
+        
+        DispatchQueue.main.async {
+          completion(keys, nil)
+        }
+      } catch let error as NSError {
+        DispatchQueue.main.async {
+          completion(nil, error)
+        }
+      }
     }
   }
 }

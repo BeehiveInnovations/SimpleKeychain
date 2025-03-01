@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		297A87D72D731CF800015FAB /* SimpleKeychain+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297A87D62D731CF800015FAB /* SimpleKeychain+Async.swift */; };
+		297A87D82D731CF800015FAB /* SimpleKeychain+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297A87D62D731CF800015FAB /* SimpleKeychain+Async.swift */; };
+		297A87D92D731CF800015FAB /* SimpleKeychain+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297A87D62D731CF800015FAB /* SimpleKeychain+Async.swift */; };
+		297A87DA2D731CF800015FAB /* SimpleKeychain+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297A87D62D731CF800015FAB /* SimpleKeychain+Async.swift */; };
+		297A87DB2D731CF800015FAB /* SimpleKeychain+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297A87D62D731CF800015FAB /* SimpleKeychain+Async.swift */; };
 		298132FD2D7300490089E3B8 /* SimpleKeychainObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 298132FC2D7300490089E3B8 /* SimpleKeychainObjC.swift */; };
 		298132FE2D7300490089E3B8 /* SimpleKeychainObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 298132FC2D7300490089E3B8 /* SimpleKeychainObjC.swift */; };
 		298132FF2D7300490089E3B8 /* SimpleKeychainObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 298132FC2D7300490089E3B8 /* SimpleKeychainObjC.swift */; };
@@ -126,6 +131,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		297A87D62D731CF800015FAB /* SimpleKeychain+Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SimpleKeychain+Async.swift"; sourceTree = "<group>"; };
 		298132FC2D7300490089E3B8 /* SimpleKeychainObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleKeychainObjC.swift; sourceTree = "<group>"; };
 		298133022D7301740089E3B8 /* SimpleKeychainObjCTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleKeychainObjCTests.swift; sourceTree = "<group>"; };
 		5B0AB18F2088E2DB002D7109 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
@@ -334,6 +340,7 @@
 			children = (
 				5FEEB99F1B7BD70A00501415 /* Supporting Files */,
 				5CDF40592852D88C003840E6 /* SimpleKeychain.swift */,
+				297A87D62D731CF800015FAB /* SimpleKeychain+Async.swift */,
 				298132FC2D7300490089E3B8 /* SimpleKeychainObjC.swift */,
 				5C737B2A285A7C0200B4BB25 /* SimpleKeychainError.swift */,
 				5C840111285AFF7B00689C01 /* Accessibility.swift */,
@@ -952,6 +959,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5C737B2D285A7C0200B4BB25 /* SimpleKeychainError.swift in Sources */,
+				297A87DA2D731CF800015FAB /* SimpleKeychain+Async.swift in Sources */,
 				5C840114285AFF7B00689C01 /* Accessibility.swift in Sources */,
 				298133002D7300490089E3B8 /* SimpleKeychainObjC.swift in Sources */,
 				5CDF405C2852D88C003840E6 /* SimpleKeychain.swift in Sources */,
@@ -963,6 +971,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5C737B2E285A7C0200B4BB25 /* SimpleKeychainError.swift in Sources */,
+				297A87D72D731CF800015FAB /* SimpleKeychain+Async.swift in Sources */,
 				5C840115285AFF7B00689C01 /* Accessibility.swift in Sources */,
 				298132FF2D7300490089E3B8 /* SimpleKeychainObjC.swift in Sources */,
 				5CDF405D2852D88C003840E6 /* SimpleKeychain.swift in Sources */,
@@ -1013,6 +1022,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5C737B2B285A7C0200B4BB25 /* SimpleKeychainError.swift in Sources */,
+				297A87DB2D731CF800015FAB /* SimpleKeychain+Async.swift in Sources */,
 				5C840112285AFF7B00689C01 /* Accessibility.swift in Sources */,
 				298133012D7300490089E3B8 /* SimpleKeychainObjC.swift in Sources */,
 				5CDF405A2852D88C003840E6 /* SimpleKeychain.swift in Sources */,
@@ -1024,6 +1034,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5C737B2C285A7C0200B4BB25 /* SimpleKeychainError.swift in Sources */,
+				297A87D82D731CF800015FAB /* SimpleKeychain+Async.swift in Sources */,
 				5C840113285AFF7B00689C01 /* Accessibility.swift in Sources */,
 				298132FE2D7300490089E3B8 /* SimpleKeychainObjC.swift in Sources */,
 				5CDF405B2852D88C003840E6 /* SimpleKeychain.swift in Sources */,
@@ -1044,6 +1055,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C1D1FBAD2C2192FA008E9E3F /* SimpleKeychain.swift in Sources */,
+				297A87D92D731CF800015FAB /* SimpleKeychain+Async.swift in Sources */,
 				C1D1FBAE2C2192FA008E9E3F /* SimpleKeychainError.swift in Sources */,
 				298132FD2D7300490089E3B8 /* SimpleKeychainObjC.swift in Sources */,
 				C1D1FBAF2C2192FA008E9E3F /* Accessibility.swift in Sources */,

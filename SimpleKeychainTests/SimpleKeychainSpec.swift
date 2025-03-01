@@ -362,6 +362,217 @@ class SimpleKeychainTests: XCTestCase {
     #endif
 }
 
+// MARK: - Async Tests
+
+extension SimpleKeychainTests {
+  // MARK: Async String Tests
+  
+  func testAsyncStoringAndRetrievingStringItem() async throws {
+    let key = UUID().uuidString
+    let value = "async-test-value"
+    
+    // Store the string asynchronously
+    try await sut.set(value, forKey: key)
+    
+    // Retrieve the string asynchronously
+    let retrievedValue = try await sut.string(forKey: key)
+    
+    XCTAssertEqual(retrievedValue, value, "Retrieved value should match stored value")
+  }
+  
+  func testAsyncStoringStringItemUnderExistingKey() async throws {
+    let key = UUID().uuidString
+    let originalValue = "original-value"
+    let updatedValue = "updated-value"
+    
+    try await sut.set(originalValue, forKey: key)
+    try await sut.set(updatedValue, forKey: key)
+    
+    let retrievedValue = try await sut.string(forKey: key)
+    XCTAssertEqual(retrievedValue, updatedValue, "Retrieved value should match updated value")
+  }
+  
+  func testAsyncRetrievingNonExistingStringItem() async {
+    let nonExistentKey = "ASYNC-NONEXISTENT-" + UUID().uuidString
+    
+    await XCTAssertThrowsErrorAsync(try await sut.string(forKey: nonExistentKey)) { error in
+      XCTAssertEqual(error as? SimpleKeychainError, .itemNotFound)
+    }
+  }
+  
+  // MARK: Async Data Tests
+  
+  func testAsyncStoringAndRetrievingDataItem() async throws {
+    let key = UUID().uuidString
+    let value = "data-test-value".data(using: .utf8)!
+    
+    try await sut.set(value, forKey: key)
+    let retrievedData = try await sut.data(forKey: key)
+    
+    XCTAssertEqual(retrievedData, value, "Retrieved data should match stored data")
+  }
+  
+  func testAsyncRetrievingNonExistingDataItem() async {
+    let nonExistentKey = "ASYNC-NONEXISTENT-" + UUID().uuidString
+    
+    await XCTAssertThrowsErrorAsync(try await sut.data(forKey: nonExistentKey)) { error in
+      XCTAssertEqual(error as? SimpleKeychainError, .itemNotFound)
+    }
+  }
+  
+  // MARK: Async Delete Tests
+  
+  func testAsyncDeletingItem() async throws {
+    let key = UUID().uuidString
+    try await sut.set("value-to-delete", forKey: key)
+    
+    // Verify item exists
+    let exists = try await sut.hasItem(forKey: key)
+    XCTAssertTrue(exists, "Item should exist before deletion")
+    
+    // Delete item
+    try await sut.deleteItem(forKey: key)
+    
+    // Verify item is gone
+    let existsAfterDeletion = try await sut.hasItem(forKey: key)
+    XCTAssertFalse(existsAfterDeletion, "Item should not exist after deletion")
+  }
+  
+  func testAsyncDeletingNonExistingItem() async {
+    let nonExistentKey = "ASYNC-NONEXISTENT-" + UUID().uuidString
+    
+    await XCTAssertThrowsErrorAsync(try await sut.deleteItem(forKey: nonExistentKey)) { error in
+      XCTAssertEqual(error as? SimpleKeychainError, .itemNotFound)
+    }
+  }
+  
+  func testAsyncDeletingAllItems() async throws {
+    // Store multiple items
+    let keys = [UUID().uuidString, UUID().uuidString, UUID().uuidString]
+    for (i, key) in keys.enumerated() {
+      try await sut.set("value-\(i)", forKey: key)
+    }
+    
+    // Verify all items exist
+    for key in keys {
+      let exists = try await sut.hasItem(forKey: key)
+      XCTAssertTrue(exists, "Item \(key) should exist before deleteAll")
+    }
+    
+    // Delete all items
+    try await sut.deleteAll()
+    
+    // Verify all items are gone
+    for key in keys {
+      let exists = try await sut.hasItem(forKey: key)
+      XCTAssertFalse(exists, "Item \(key) should not exist after deleteAll")
+    }
+  }
+  
+  // MARK: Async Query Tests
+  
+  func testAsyncCheckingStoredItem() async throws {
+    let key = UUID().uuidString
+    try await sut.set("check-me", forKey: key)
+    
+    let exists = try await sut.hasItem(forKey: key)
+    XCTAssertTrue(exists, "Item should exist")
+  }
+  
+  func testAsyncCheckingNonExistingItem() async throws {
+    let nonExistentKey = "ASYNC-NONEXISTENT-" + UUID().uuidString
+    
+    let exists = try await sut.hasItem(forKey: nonExistentKey)
+    XCTAssertFalse(exists, "Nonexistent item should return false")
+  }
+  
+  func testAsyncRetrievingKeys() async throws {
+    // Clean start
+    try? await sut.deleteAll()
+    
+    // Store items with known keys
+    var keys: [String] = []
+    for i in 0..<3 {
+      let key = "async-key-\(i)-\(UUID().uuidString)"
+      keys.append(key)
+      try await sut.set("value-\(i)", forKey: key)
+    }
+    
+    // Retrieve all keys
+    let retrievedKeys = try await sut.keys()
+    
+    // Verify all our keys are included
+    for key in keys {
+      XCTAssertTrue(retrievedKeys.contains(key), "Retrieved keys should contain \(key)")
+    }
+    
+    // Verify count matches
+    XCTAssertEqual(retrievedKeys.count, keys.count, "Should have exactly our keys")
+  }
+  
+  func testAsyncRetrievingEmptyKeys() async throws {
+    // Ensure keychain is empty
+    try await sut.deleteAll()
+    
+    // Get keys from empty keychain
+    let keys = try await sut.keys()
+    
+    // Verify empty array is returned
+    XCTAssertEqual(keys.count, 0, "Empty keychain should return empty keys array")
+  }
+  
+  // MARK: Concurrency Tests
+  
+  func testConcurrentAsyncOperations() async throws {
+    // Test that multiple concurrent operations work correctly
+    let operationCount = 10
+    let baseKey = UUID().uuidString
+    
+    // Create tasks for concurrent writes
+    await withTaskGroup(of: Void.self) { group in
+      for i in 0..<operationCount {
+        group.addTask {
+          do {
+            try await self.sut.set("value-\(i)", forKey: "\(baseKey)-\(i)")
+          } catch {
+            XCTFail("Concurrent set failed: \(error)")
+          }
+        }
+      }
+    }
+    
+    // Verify all writes succeeded
+    var retrievedValues = [String]()
+    for i in 0..<operationCount {
+      let value = try await sut.string(forKey: "\(baseKey)-\(i)")
+      retrievedValues.append(value)
+    }
+    
+    // Verify all values match expected
+    for i in 0..<operationCount {
+      XCTAssertEqual(retrievedValues[i], "value-\(i)", "Retrieved value should match for concurrent operation \(i)")
+    }
+  }
+}
+
+// Helper extension for XCTest to support async assertions
+extension XCTest {
+  func XCTAssertThrowsErrorAsync<T>(
+    _ expression: @autoclosure () async throws -> T,
+    _ message: @autoclosure () -> String = "",
+    file: StaticString = #filePath,
+    line: UInt = #line,
+    _ errorHandler: (_ error: Error) -> Void = { _ in }
+  ) async {
+    do {
+      _ = try await expression()
+      XCTFail(message(), file: file, line: line)
+    } catch {
+      errorHandler(error)
+    }
+  }
+}
+
 public extension Dictionary where Key == String, Value == Any {
     func containsBaseQuery(_ baseQuery: [String: Any]) -> Bool {
         let filtered = self.filter { element in
