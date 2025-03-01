@@ -18,7 +18,7 @@ public class SimpleKeychainObjC: NSObject {
   /// - Parameters:
   ///   - service: Name of the service under which to save items. Defaults to the bundle identifier.
   ///   - accessGroup: access group for sharing Keychain items. Defaults to `nil`.
-  ///   - accessibility: ``Accessibility`` type the stored items will have. Defaults to ``Accessibility/afterFirstUnlock``.
+  ///   - accessibility: ``Accessibility`` type the stored items will have. Defaults to ``Accessibility/afterFirstUnlock``. If you wish to use legacy behavior with no accessibiltiy set, use the Swift interface instead.
   ///   - accessControlFlags: Access control conditions for `kSecAttrAccessControl`.  Defaults to `nil`.
   ///   - context: `LAContext` used to access Keychain items. Defaults to `nil`.
   ///   - synchronizable: Whether the items should be synchronized through iCloud. Defaults to `false`.
@@ -53,16 +53,7 @@ public class SimpleKeychainObjC: NSObject {
     } else {
       flags = nil
     }
-
-    // Add kSecUseDataProtectionKeychain on macOS by default
-    // as we want the accessibility to be used
-    var mutableAttributes = attributes
-#if os(macOS)
-    if mutableAttributes[kSecUseDataProtectionKeychain as String] == nil {
-      mutableAttributes[kSecUseDataProtectionKeychain as String] = true
-    }
-#endif
-    
+        
     // Initialize the underlying Swift SimpleKeychain
     self.simpleKeychain = SimpleKeychain(
       service: service,
@@ -95,12 +86,12 @@ public class SimpleKeychainObjC: NSObject {
 
 public extension SimpleKeychainObjC {
   /// Retrieves a `String` value from the Keychain.
-  /// 
+  ///
   /// ```swift
   /// var error: NSError?
   /// let value = try simpleKeychain.string(forKey: "your_key", error: &error)
   /// ```
-  /// 
+  ///
   /// - Parameter key: Key of the Keychain item to retrieve.
   /// - Parameter error: On failure, will be set to the error that occurred.
   /// - Returns: The `String` value.
@@ -116,12 +107,12 @@ public extension SimpleKeychainObjC {
   }
   
   /// Retrieves a `Data` value from the Keychain.
-  /// 
+  ///
   /// ```swift
   /// var error: NSError?
   /// let value = try simpleKeychain.data(forKey: "your_key", error: &error)
   /// ```
-  /// 
+  ///
   /// - Parameter key: Key of the Keychain item to retrieve.
   /// - Parameter error: On failure, will be set to the error that occurred.
   /// - Returns: The `Data` value.
@@ -164,12 +155,12 @@ public extension SimpleKeychainObjC {
   }
   
   /// Saves a `Data` value with the type `kSecClassGenericPassword` in the Keychain.
-  /// 
+  ///
   /// ```swift
   /// var error: NSError?
   /// try simpleKeychain.set(data, forKey: "your_key", error: &error)
   /// ```
-  /// 
+  ///
   /// - Parameter data: Value to save in the Keychain.
   /// - Parameter key: Key for the Keychain item.
   /// - Parameter error: On failure, will be set to the error that occurred.
@@ -192,12 +183,12 @@ public extension SimpleKeychainObjC {
 public extension SimpleKeychainObjC {
   
   /// Deletes an item from the Keychain.
-  /// 
+  ///
   /// ```swift
   /// var error: NSError?
   /// try simpleKeychain.deleteItem(forKey: "your_key", error: &error)
   /// ```
-  /// 
+  ///
   /// - Parameter key: Key of the Keychain item to delete..
   /// - Parameter error: On failure, will be set to the error that occurred.
   /// - Returns: `True` on a successful save. When `False`, check error.
@@ -214,12 +205,12 @@ public extension SimpleKeychainObjC {
   }
   
   /// Deletes all items from the Keychain for the service and access group values.
-  /// 
+  ///
   /// ```swift
   /// var error: NSError?
   /// try simpleKeychain.deleteAll(error: &error)
   /// ```
-  /// 
+  ///
   /// - Parameter error: On failure, will be set to the error that occurred.
   /// - Returns: `True` on a successful save. When `False`, check error.
   @objc func deleteAll(error: NSErrorPointer) -> Bool {
@@ -239,12 +230,12 @@ public extension SimpleKeychainObjC {
 
 public extension SimpleKeychainObjC {
   /// Checks if an item is stored in the Keychain.
-  /// 
+  ///
   /// ```swift
   /// var error: NSError?
   /// let isStored = try simpleKeychain.hasItem(forKey: "your_key", error: &error)
   /// ```
-  /// 
+  ///
   /// - Parameter key: Key of the Keychain item to check.
   /// - Parameter error: On failure, will be set to the error that occurred.
   /// - Returns: Whether the item is stored in the Keychain or not.. When `False`, check error.
@@ -260,12 +251,12 @@ public extension SimpleKeychainObjC {
   }
   
   /// Retrieves the keys of all the items stored in the Keychain for the service and access group values.
-  /// 
+  ///
   /// ```swift
   /// var error: NSError?
   /// let keys = try simpleKeychain.keys(error: &error)
   /// ```
-  /// 
+  ///
   /// - Returns: A `String` array containing the keys.
   /// - Parameter error: On failure, will be set to the error that occurred.
   @objc func keys(error: NSErrorPointer) -> [String]? {

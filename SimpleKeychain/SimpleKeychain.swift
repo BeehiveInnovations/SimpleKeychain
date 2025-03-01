@@ -17,7 +17,7 @@ typealias RemoveFunction = (_ query: CFDictionary) -> OSStatus
 public struct SimpleKeychain: @unchecked Sendable {
     let service: String
     let accessGroup: String?
-    let accessibility: Accessibility
+    let accessibility: Accessibility?
     let accessControlFlags: SecAccessControlCreateFlags?
     let isSynchronizable: Bool
     let attributes: [String: Any]
@@ -32,7 +32,7 @@ public struct SimpleKeychain: @unchecked Sendable {
     /// - Parameter service: Name of the service under which to save items. Defaults to the bundle identifier.
     /// - Parameter accessGroup: access group for sharing Keychain items. Defaults to `nil`.
     /// - Parameter accessibility: ``Accessibility`` type the stored items will have. Defaults to
-    /// ``Accessibility/afterFirstUnlock``.
+    /// ``Accessibility/afterFirstUnlock``; this is optional only for macOS - iOS will always default to this when not set
     /// - Parameter accessControlFlags: Access control conditions for `kSecAttrAccessControl`.  Defaults to `nil`.
     /// - Parameter context: `LAContext` used to access Keychain items. Defaults to `nil`.
     /// - Parameter synchronizable: Whether the items should be synchronized through iCloud. Defaults to `false`.
@@ -40,18 +40,32 @@ public struct SimpleKeychain: @unchecked Sendable {
     /// - Returns: A ``SimpleKeychain`` instance.
     public init(service: String = Bundle.main.bundleIdentifier!,
                 accessGroup: String? = nil,
-                accessibility: Accessibility = .afterFirstUnlock,
+                accessibility: Accessibility? = .afterFirstUnlock,
                 accessControlFlags: SecAccessControlCreateFlags? = nil,
                 context: SimpleKeychainContext? = nil,
                 synchronizable: Bool = false,
                 attributes: [String: Any] = [:]) {
         self.service = service
         self.accessGroup = accessGroup
-        self.accessibility = accessibility
         self.accessControlFlags = accessControlFlags
         self.context = context
         self.isSynchronizable = synchronizable
-        self.attributes = attributes
+      
+        // Add kSecUseDataProtectionKeychain on macOS by default if missing and accessibility is set
+        var mutableAttributes = attributes
+#if os(macOS)
+        // accessibility can be passed-in as `nil` if desired
+        self.accessibility = accessibility
+      
+        if let accessibility, mutableAttributes[kSecUseDataProtectionKeychain as String] == nil {
+            mutableAttributes[kSecUseDataProtectionKeychain as String] = true
+        }
+#else
+        // when not on macOS, always use a default accessibility of afterFirstUnlock
+        self.accessibility = accessibility ?? .afterFirstUnlock
+#endif
+      
+        self.attributes = mutableAttributes
     }
 
     private func assertSuccess(forStatus status: OSStatus) throws {
@@ -283,13 +297,16 @@ extension SimpleKeychain {
         var query = self.baseQuery(withKey: key, data: data)
 
         if let flags = self.accessControlFlags,
-           let access = SecAccessControlCreateWithFlags(kCFAllocatorDefault, self.accessibility.rawValue, flags, nil) {
+           let accessibility,
+           let access = SecAccessControlCreateWithFlags(kCFAllocatorDefault, accessibility.rawValue, flags, nil) {
             query[kSecAttrAccessControl as String] = access
         } else {
             #if os(macOS)
             // See https://developer.apple.com/documentation/security/ksecattraccessible
-            if self.isSynchronizable || query[kSecUseDataProtectionKeychain as String] as? Bool == true {
-                query[kSecAttrAccessible as String] = self.accessibility.rawValue
+            if let accessibility {
+              if self.isSynchronizable || query[kSecUseDataProtectionKeychain as String] as? Bool == true {
+                  query[kSecAttrAccessible as String] = accessibility.rawValue
+              }
             }
             #else
             query[kSecAttrAccessible as String] = self.accessibility.rawValue
