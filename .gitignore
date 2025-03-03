@@ -45,3 +45,6 @@ Package.resolved
 # DocC
 docs.archive/
 .DerivedData.noindex
+SimpleKeychain.xcframework
+SimpleKeychain/.last_build_hash
+archives/
